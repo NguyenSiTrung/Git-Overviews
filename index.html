@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn Git Tương tác (Phiên bản đầy đủ)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
+        }
+        .code-block {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            position: relative;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4B5563;
+            color: #E5E7EB;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        .nav-link.active {
+            color: #0d6efd;
+            background-color: #e7f1ff;
+            border-left-color: #0d6efd;
+            font-weight: 600;
+        }
+        .nav-link:hover {
+            background-color: #f1f3f5;
+            color: #0d6efd;
+        }
+        .prose h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .prose h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        .prose p, .prose ul, .prose ol, .prose details {
+            line-height: 1.75;
+            color: #495057;
+        }
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+        .prose strong, .prose b {
+            color: #000;
+        }
+        .prose .highlight {
+            background-color: #e7f1ff;
+            color: #0d6efd;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+        }
+        .gitflow-diagram .branch {
+            transition: all 0.3s ease-in-out;
+        }
+        .gitflow-diagram:hover .branch:not(:hover) {
+            opacity: 0.5;
+        }
+        .rule-card {
+            background-color: white;
+            border-left: 5px solid;
+            padding: 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: 500;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        details summary:hover {
+            background-color: #f1f3f5;
+        }
+        details[open] summary {
+             background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside id="sidebar" class="w-full md:w-64 lg:w-72 bg-white border-r border-gray-200 p-4 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+            <h1 class="text-xl font-bold text-gray-800 mb-6">Hướng dẫn Git (Đầy đủ)</h1>
+            <nav id="nav-menu">
+                <ul class="space-y-1">
+                    <li><a href="#gioi-thieu" class="nav-link block p-2 rounded-md">Giới thiệu</a></li>
+                    <li><a href="#cai-dat" class="nav-link block p-2 rounded-md">Cài đặt & Cấu hình</a></li>
+                    <li><a href="#khai-niem" class="nav-link block p-2 rounded-md">Khái niệm cốt lõi</a></li>
+                    <li><a href="#git-flow" class="nav-link block p-2 rounded-md">Mô hình Git Flow</a></li>
+                    <li><a href="#quy-trinh" class="nav-link block p-2 rounded-md">Quy trình làm việc</a></li>
+                    <li><a href="#ci-cd" class="nav-link block p-2 rounded-md">Giới thiệu CI/CD</a></li>
+                    <li><a href="#lenh-huu-ich" class="nav-link block p-2 rounded-md">Lệnh hữu ích</a></li>
+                    <li><a href="#quy-tac" class="nav-link block p-2 rounded-md">Quy tắc vàng</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-8 lg:p-12">
+            <div class="prose max-w-none">
+                <section id="gioi-thieu">
+                    <div class="p-6 rounded-lg bg-white border border-gray-200">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">Chào mừng bạn đến với đội!</h2>
+                        <p class="text-lg text-gray-600">Đây là tài liệu hướng dẫn chi tiết và đầy đủ về Git và GitHub, giúp bạn nhanh chóng hòa nhập với quy trình làm việc chuẩn của chúng ta. Hãy sử dụng menu bên trái để di chuyển đến các phần bạn quan tâm.</p>
+                    </div>
+
+                    <h3>Git là gì và Tại sao chúng ta sử dụng nó?</h4>
+                    <h4>Git là gì?</h4>
+                    <p>Git là một hệ thống quản lý phiên bản phân tán (Distributed Version Control System - DVCS) mạnh mẽ và phổ biến nhất hiện nay. Nó giúp chúng ta theo dõi mọi thay đổi trong mã nguồn của dự án theo thời gian. Hãy tưởng tượng Git như một "cỗ máy thời gian" cho code, cho phép bạn quay lại các phiên bản cũ hơn, xem ai đã thay đổi gì, khi nào, và tại sao.</p>
+
+                    <h4>Tại sao chúng ta sử dụng Git?</h4>
+                    <p>Việc áp dụng Git mang lại nhiều lợi ích cốt lõi cho dự án của chúng ta:</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><b>Theo dõi lịch sử thay đổi:</b> Mọi thay đổi đều được ghi lại, giúp dễ dàng tìm ra lỗi hoặc hiểu rõ quá trình phát triển.</li>
+                        <li><b>Làm việc nhóm hiệu quả:</b> Nhiều người có thể cùng làm việc trên một dự án mà không làm ảnh hưởng lẫn nhau, nhờ vào cơ chế nhánh (branching) và trộn (merging).</li>
+                        <li><b>Khả năng phục hồi:</b> Dễ dàng khôi phục lại các phiên bản cũ nếu có sự cố xảy ra.</li>
+                        <li><b>Phân nhánh linh hoạt:</b> Cho phép thử nghiệm các tính năng mới một cách độc lập mà không ảnh hưởng đến mã nguồn chính.</li>
+                        <li><b>Hỗ trợ quy trình làm việc chuyên nghiệp:</b> Git là nền tảng cho các quy trình phát triển hiện đại như Git Flow, CI/CD.</li>
+                    </ul>
+                    
+                    <h4>Git vs. GitHub</h4>
+                     <p><b>Git:</b> Là công cụ dòng lệnh (command-line tool) được cài đặt và chạy trên máy tính cá nhân của bạn. Nó thực hiện việc quản lý phiên bản.</p>
+                     <p><b>GitHub:</b> Là một nền tảng dịch vụ dựa trên web (platform/service) cung cấp không gian lưu trữ từ xa (remote repositories) cho các dự án Git. Ngoài ra, GitHub còn cung cấp các công cụ hỗ trợ làm việc nhóm như Pull Requests, Issue Tracking, Code Review, Actions (CI/CD), v.v.</p>
+                     <p>Nói một cách đơn giản, Git là công cụ, còn GitHub là nơi chúng ta lưu trữ và cộng tác trên các dự án sử dụng Git.</p>
+                </section>
+
+                <section id="cai-dat">
+                    <h3>Cài đặt và Cấu hình ban đầu</h3>
+                    <h4>Hướng dẫn cài đặt Git</h4>
+                    <details class="mb-4 border rounded-lg p-2">
+                        <summary>Trên Windows</summary>
+                        <ol class="list-decimal list-inside mt-2 pl-4">
+                            <li>Truy cập <a href="https://git-scm.com/download/win" target="_blank" class="text-blue-600 hover:underline">git-scm.com</a> và tải về bộ cài đặt.</li>
+                            <li>Chạy file cài đặt và làm theo các bước hướng dẫn (đa phần có thể để tùy chọn mặc định).</li>
+                            <li>Sau khi cài đặt, mở <b>Git Bash</b> (hoặc Command Prompt/PowerShell) và gõ lệnh sau để kiểm tra:</li>
+                        </ol>
+                         <div class="code-block" data-code="git --version">git --version</div>
+                    </details>
+                    <details class="mb-4 border rounded-lg p-2">
+                        <summary>Trên macOS</summary>
+                        <p class="mt-2">Cách dễ nhất là sử dụng Homebrew. Mở Terminal và chạy các lệnh:</p>
+                        <div class="code-block" data-code='brew install git'>brew install git</div>
+                        <p>Nếu bạn chưa có Homebrew, hãy cài đặt nó trước từ <a href="https://brew.sh" target="_blank" class="text-blue-600 hover:underline">brew.sh</a>.</p>
+                        <p>Ngoài ra, Git thường được cài đặt sẵn cùng với Xcode Command Line Tools. Thử gõ `git --version` trong Terminal, hệ thống sẽ gợi ý bạn cài đặt nếu chưa có.</p>
+                    </details>
+                    <details class="mb-4 border rounded-lg p-2">
+                        <summary>Trên Linux (Debian/Ubuntu)</summary>
+                        <p class="mt-2">Mở Terminal và chạy lệnh:</p>
+                        <div class="code-block" data-code='sudo apt update && sudo apt install git'>sudo apt update && sudo apt install git</div>
+                        <p>Kiểm tra cài đặt:</p>
+                         <div class="code-block" data-code="git --version">git --version</div>
+                    </details>
+                    
+                    <h4>Cấu hình Git lần đầu</h4>
+                    <p>Sau khi cài đặt, bạn cần cấu hình thông tin cá nhân cho Git. Thông tin này sẽ được gắn với mỗi commit bạn tạo ra.</p>
+                    <div class="code-block" data-code='git config --global user.name "Ten Cua Ban"'>git config --global user.name "Ten Cua Ban"</div>
+                    <div class="code-block" data-code='git config --global user.email "emailcuaban@example.com"'>git config --global user.email "emailcuaban@example.com"</div>
+                    
+                    <h4>Thiết lập xác thực qua SSH với GitHub (Chi tiết)</h4>
+                    <p>Sử dụng SSH key giúp bạn kết nối và xác thực với GitHub mà không cần nhập username và password mỗi lần.</p>
+                    <ol class="list-decimal list-inside space-y-2 mt-4">
+                        <li><b>Kiểm tra SSH key hiện có:</b>
+                            <div class="code-block" data-code="ls -al ~/.ssh">ls -al ~/.ssh</div>
+                            <p>Nếu bạn thấy các file như `id_rsa.pub` hoặc `id_ed25519.pub` thì bạn đã có key, có thể bỏ qua bước 2.</p>
+                        </li>
+                        <li><b>Tạo SSH key mới (nếu chưa có):</b>
+                             <div class="code-block" data-code='ssh-keygen -t ed25519 -C "emailcuaban@example.com"'>ssh-keygen -t ed25519 -C "emailcuaban@example.com"</div>
+                             <p>Nhấn Enter để chấp nhận vị trí lưu mặc định và có thể bỏ trống passphrase.</p>
+                        </li>
+                        <li><b>Thêm SSH key vào ssh-agent:</b>
+                             <div class="code-block" data-code='eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519'>eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519</div>
+                        </li>
+                        <li><b>Thêm public key vào tài khoản GitHub:</b>
+                            <p>Sao chép nội dung public key:</p>
+                            <div class="code-block" data-code="cat ~/.ssh/id_ed25519.pub">cat ~/.ssh/id_ed25519.pub</div>
+                            <p>Sau đó truy cập <a href="https://github.com/settings/keys" target="_blank" class="text-blue-600 hover:underline">GitHub SSH keys settings</a>, chọn "New SSH key", dán nội dung đã sao chép vào và lưu lại.</p>
+                        </li>
+                         <li><b>Kiểm tra kết nối:</b>
+                             <div class="code-block" data-code="ssh -T git@github.com">ssh -T git@github.com</div>
+                             <p>Nếu nhận được thông báo "Hi username! You've successfully authenticated...", bạn đã thành công.</p>
+                        </li>
+                    </ol>
+                </section>
+
+                <section id="khai-niem">
+                    <h3>Các khái niệm Git cốt lõi</h3>
+                    <p>Hiểu rõ các thuật ngữ này là chìa khóa để làm việc hiệu quả với Git.</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        <div class="p-4 bg-white border rounded-lg"><b>Repository (Repo):</b> Kho chứa toàn bộ code và lịch sử thay đổi của dự án. Gồm Local Repo (trên máy bạn) và Remote Repo (trên GitHub).</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>Commit:</b> Một "ảnh chụp" (snapshot) các thay đổi của bạn tại một thời điểm. Mỗi commit có một mã định danh duy nhất (SHA-1 hash).</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>Branch:</b> Một dòng phát triển độc lập. Giúp bạn làm việc trên các tính năng mà không ảnh hưởng đến code chính.</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>Merge:</b> Hành động gộp các thay đổi từ một nhánh này sang một nhánh khác.</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>Pull Request (PR):</b> Một yêu cầu chính thức để merge code trên GitHub. Đây là nơi diễn ra quá trình code review và thảo luận.</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>Remote:</b> Một tham chiếu đến repository trên server (ví dụ: `origin` thường là tên mặc định cho remote trỏ đến GitHub).</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>Staging Area (Index):</b> Khu vực chuẩn bị. Chỉ những thay đổi được `git add` vào đây mới được đưa vào commit tiếp theo.</div>
+                        <div class="p-4 bg-white border rounded-lg"><b>HEAD:</b> Con trỏ trỏ đến commit hiện tại trong nhánh bạn đang làm việc. Thường là commit mới nhất.</div>
+                    </div>
+                </section>
+                
+                <section id="git-flow">
+                    <h3>Mô hình Phân nhánh (Git Flow)</h3>
+                    <p>Đây là xương sống của quy trình làm việc trong team. Git Flow giúp quản lý dự án một cách có tổ chức bằng cách sử dụng các nhánh với vai trò cụ thể. Di chuột qua các nhánh trong sơ đồ bên dưới để xem tóm tắt.</p>
+                    
+                    <div class="gitflow-diagram bg-gray-100 p-6 rounded-lg border my-6 space-y-4">
+                         <div class="branch" data-branch="main"><div class="flex items-center space-x-4"><span class="font-bold text-lg text-purple-700 w-32">main</span><div class="flex-1 h-2 bg-purple-500 rounded-full"></div></div></div>
+                         <div class="branch" data-branch="develop"><div class="flex items-center space-x-4"><span class="font-bold text-lg text-blue-700 w-32">develop</span><div class="flex-1 h-2 bg-blue-500 rounded-full"></div></div></div>
+                         <div class="branch" data-branch="feature"><div class="flex items-center space-x-4"><span class="font-bold text-lg text-green-700 w-32">feature/*</span><div class="flex-1 h-2 bg-green-500 rounded-full"></div></div></div>
+                         <div class="branch" data-branch="release"><div class="flex items-center space-x-4"><span class="font-bold text-lg text-orange-700 w-32">release/*</span><div class="flex-1 h-2 bg-orange-500 rounded-full"></div></div></div>
+                         <div class="branch" data-branch="hotfix"><div class="flex items-center space-x-4"><span class="font-bold text-lg text-red-700 w-32">hotfix/*</span><div class="flex-1 h-2 bg-red-500 rounded-full"></div></div></div>
+                    </div>
+                    
+                    <h4>Chi tiết vai trò và quy tắc các nhánh</h4>
+                    
+                    <div class="rule-card border-purple-600">
+                        <h5 class="font-bold text-xl text-purple-700">main (hoặc master)</h5>
+                        <p><b>Mục đích:</b> Chứa mã nguồn đã được phát hành, ổn định và sẵn sàng cho môi trường production.</p>
+                        <b>Quy tắc:</b>
+                        <ul class="list-disc list-inside mt-2">
+                           <li><b>KHÔNG BAO GIỜ</b> commit trực tiếp lên nhánh `main`.</li>
+                           <li>Chỉ được merge code vào từ các nhánh `release/*` hoặc `hotfix/*`.</li>
+                           <li>Mỗi commit trên `main` phải tương ứng với một phiên bản (version) cụ thể và được đánh dấu bằng một <b>tag</b> (ví dụ: `v1.0.0`).</li>
+                        </ul>
+                    </div>
+
+                    <div class="rule-card border-blue-600">
+                        <h5 class="font-bold text-xl text-blue-700">develop</h5>
+                        <p><b>Mục đích:</b> Nhánh tích hợp chính cho các tính năng mới. Nó chứa code của phiên bản sắp phát hành.</p>
+                        <b>Quy tắc:</b>
+                        <ul class="list-disc list-inside mt-2">
+                           <li>Tất cả các nhánh `feature/*` phải được merge vào đây.</li>
+                           <li>Khi `develop` đã có đủ tính năng cho phiên bản tiếp theo, một nhánh `release/*` sẽ được tạo ra từ đây.</li>
+                           <li>Đây là nhánh "bất ổn định" trong quá trình phát triển, không triển khai lên production từ đây.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="rule-card border-green-600">
+                        <h5 class="font-bold text-xl text-green-700">feature/*</h5>
+                        <p><b>Mục đích:</b> Phát triển các tính năng mới.</p>
+                        <b>Quy tắc:</b>
+                        <ul class="list-disc list-inside mt-2">
+                           <li>Luôn được tạo ra từ `develop`.</li>
+                           <li>Sau khi hoàn thành, sẽ được merge trở lại vào `develop` thông qua một Pull Request.</li>
+                           <li>Không bao giờ tương tác trực tiếp với `main`.</li>
+                           <li>Nên được xóa sau khi đã merge thành công vào `develop`.</li>
+                        </ul>
+                         <b>Quy tắc đặt tên:</b> <code class="highlight">feature/ten-tinh-nang</code> (ví dụ: `feature/user-authentication`).
+                    </div>
+                    
+                    <div class="rule-card border-orange-600">
+                        <h5 class="font-bold text-xl text-orange-700">release/*</h5>
+                        <p><b>Mục đích:</b> Chuẩn bị cho một phiên bản phát hành mới (sửa các bug nhỏ, chuẩn bị tài liệu, cập nhật phiên bản).</p>
+                        <b>Quy tắc:</b>
+                        <ul class="list-disc list-inside mt-2">
+                           <li>Được tạo ra từ `develop` khi `develop` đã có đủ tính năng.</li>
+                           <li>Sau khi hoàn tất, nó sẽ được merge vào cả `main` (để phát hành) và `develop` (để đảm bảo các bản vá lỗi có mặt trên develop).</li>
+                           <li>Nhánh `main` sẽ được tag với số phiên bản mới sau khi merge.</li>
+                        </ul>
+                         <b>Quy tắc đặt tên:</b> <code class="highlight">release/vX.Y.Z</code> (ví dụ: `release/v1.2.0`).
+                    </div>
+                    
+                    <div class="rule-card border-red-600">
+                        <h5 class="font-bold text-xl text-red-700">hotfix/*</h5>
+                        <p><b>Mục đích:</b> Sửa các lỗi nghiêm trọng trên môi trường production một cách nhanh chóng.</p>
+                        <b>Quy tắc:</b>
+                        <ul class="list-disc list-inside mt-2">
+                           <li>Luôn được tạo ra từ `main`.</li>
+                           <li>Sau khi sửa xong, nó phải được merge vào cả `main` (để cập nhật bản vá) và `develop` (để tránh lặp lại lỗi).</li>
+                           <li>Nhánh `main` sẽ được tag với số phiên bản vá lỗi mới (ví dụ `v1.0.1`) sau khi merge.</li>
+                        </ul>
+                         <b>Quy tắc đặt tên:</b> <code class="highlight">hotfix/mo-ta-loi-ngan-gon</code>.
+                    </div>
+                </section>
+
+                <section id="quy-trinh">
+                    <h3>Quy trình làm việc chuẩn: Phát triển tính năng mới</h3>
+                    <p>Đây là các bước điển hình khi bạn được giao một nhiệm vụ phát triển tính năng mới. Mỗi bước đều có lệnh Git tương ứng để bạn dễ dàng sao chép.</p>
+                    <div class="space-y-6 mt-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">1</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Đồng bộ hóa `develop`</h4>
+                                <p class="m-0">Luôn đảm bảo nhánh `develop` ở local của bạn được cập nhật mới nhất từ server.</p>
+                                <div class="code-block" data-code="git checkout develop && git pull origin develop">git checkout develop && git pull origin develop</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">2</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Tạo nhánh tính năng</h4>
+                                <p class="m-0">Tạo một nhánh mới từ `develop` cho tính năng bạn sắp làm.</p>
+                                <div class="code-block" data-code="git checkout -b feature/ten-tinh-nang">git checkout -b feature/ten-tinh-nang</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">3</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Làm việc và Commit</h4>
+                                <p class="m-0">Thực hiện code và commit các thay đổi thường xuyên với message rõ ràng.</p>
+                                <div class="code-block" data-code='git add . && git commit -m "feat: mo-ta-tinh-nang"'>git add . && git commit -m "feat: mo-ta-tinh-nang"</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                             <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">4</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Đẩy nhánh lên GitHub</h4>
+                                <p class="m-0">Chia sẻ nhánh của bạn với mọi người và chuẩn bị tạo Pull Request.</p>
+                                <div class="code-block" data-code="git push -u origin feature/ten-tinh-nang">git push -u origin feature/ten-tinh-nang</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">5</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Tạo Pull Request</h4>
+                                <p class="m-0">Trên GitHub, tạo một Pull Request từ nhánh feature của bạn <b>nhắm vào nhánh `develop`</b>.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">6</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Review và Merge</h4>
+                                <p class="m-0">Team sẽ review code của bạn. Sau khi được duyệt và CI pass, PR sẽ được merge.</p>
+                            </div>
+                        </div>
+                         <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-600 text-white font-bold">7</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-semibold m-0">Dọn dẹp</h4>
+                                <p class="m-0">Sau khi merge, xóa nhánh feature ở cả remote và local.</p>
+                                <div class="code-block" data-code="git checkout develop && git pull && git branch -d feature/ten-tinh-nang">git checkout develop && git pull && git branch -d feature/ten-tinh-nang</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="ci-cd">
+                    <h3>Giới thiệu về CI/CD</h3>
+                    <p>CI/CD là quá trình tự động hóa việc xây dựng, kiểm thử và triển khai phần mềm. Nó giúp chúng ta phát hành sản phẩm nhanh hơn và giảm thiểu sai sót.</p>
+                    <div class="grid md:grid-cols-1 gap-4 mt-4">
+                        <div class="p-4 bg-white border rounded-lg">
+                            <h4 class="font-semibold m-0">CI (Continuous Integration - Tích hợp liên tục)</h4>
+                            <ul class="list-disc list-inside mt-2">
+                                <li><b>Kích hoạt:</b> Khi một Pull Request được tạo hoặc cập nhật nhắm vào nhánh `develop`.</li>
+                                <li><b>Hành động:</b> Hệ thống sẽ tự động chạy các quy trình kiểm thử (unit tests, integration tests).</li>
+                                <li><b>Kết quả:</b> PR sẽ hiển thị trạng thái "pass" hoặc "fail". Chỉ những PR "pass" mới được phép merge.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-white border rounded-lg">
+                            <h4 class="font-semibold m-0">CD (Continuous Delivery/Deployment - Chuyển giao/Triển khai liên tục)</h4>
+                            <p><b>Kích hoạt:</b> Khi một commit mới được merge vào nhánh `main`.</p>
+                            <p><b>Continuous Delivery (Chuyển giao liên tục):</b> Hệ thống tự động triển khai phiên bản mới lên môi trường Staging. Việc triển khai lên Production cần một bước xác nhận thủ công.</p>
+                            <p><b>Continuous Deployment (Triển khai liên tục):</b> Hệ thống tự động triển khai thẳng lên Production nếu tất cả các bước trước đó thành công.</p>
+                            <p><b>Mục đích:</b> Giảm thiểu sai sót thủ công và tăng tốc độ phát hành sản phẩm.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="lenh-huu-ich">
+                    <h3>Các tình huống và lệnh hữu ích khác</h3>
+                    <h4>Cập nhật nhánh feature với `develop` mới nhất (Rebase vs. Merge)</h4>
+                    <p>Khi `develop` có thay đổi mới, bạn cần cập nhật nhánh feature của mình. Có 2 cách chính:</p>
+                    <p><b>Rebase (Ưu tiên):</b> Sắp xếp lại lịch sử commit của bạn lên trên `develop` mới nhất, giúp lịch sử thẳng và sạch sẽ.</p>
+                    <div class="code-block" data-code="git fetch origin && git rebase origin/develop">git fetch origin && git rebase origin/develop</div>
+                    <p><b>Merge:</b> Tạo một commit gộp `develop` vào nhánh của bạn. Giữ nguyên lịch sử nhưng có thể làm nó phức tạp hơn.</p>
+                    <div class="code-block" data-code="git fetch origin && git merge origin/develop">git fetch origin && git merge origin/develop</div>
+
+                    <h4>Giải quyết Merge Conflict</h4>
+                    <p>Khi Git không thể tự động gộp code, bạn cần giải quyết conflict thủ công. Mở các file bị conflict, chỉnh sửa để giữ lại phần code đúng, sau đó chạy:</p>
+                    <div class="code-block" data-code="git add <ten-file-da-sua>">git add &lt;ten-file-da-sua&gt;</div>
+                    <p>Và tiếp tục quá trình:</p>
+                    <div class="code-block" data-code="git rebase --continue # (nếu đang rebase)
+git commit # (nếu đang merge)">git rebase --continue # (nếu đang rebase)
+git commit # (nếu đang merge)</div>
+                    <p>Để hủy bỏ:</p>
+                    <div class="code-block" data-code="git rebase --abort # (hủy rebase)
+git merge --abort # (hủy merge)">git rebase --abort # (hủy rebase)
+git merge --abort # (hủy merge)</div>
+
+                    <h4>Hoàn tác một commit (`git revert`)</h4>
+                    <p>Để hoàn tác một commit đã được push một cách an toàn, hãy dùng `revert`. Lệnh này sẽ tạo ra một <b>commit mới</b> để hủy bỏ các thay đổi của commit cũ.</p>
+                    <div class="code-block" data-code="git revert <commit-SHA-can-hoan-tac>">git revert &lt;commit-SHA-can-hoan-tac&gt;</div>
+
+                    <h4>Xem lịch sử `git log`</h4>
+                    <div class="code-block" data-code="git log">git log</div>
+                    <p>Các biến thể hữu ích:</p>
+                    <div class="code-block" data-code="git log --oneline">git log --oneline</div>
+                    <div class="code-block" data-code="git log --graph --oneline --decorate --all">git log --graph --oneline --decorate --all</div>
+                    <div class="code-block" data-code="git log path/to/your/file.js">git log path/to/your/file.js</div>
+                    <p>Xem chi tiết một commit:</p>
+                    <div class="code-block" data-code="git show <commit-SHA>">git show &lt;commit-SHA&gt;</div>
+                </section>
+
+                <section id="quy-tac">
+                    <h3>Quy tắc vàng và Best Practices</h3>
+                    <h4>Quy tắc viết Commit Message chuyên nghiệp</h4>
+                    <p>Chúng ta tuân theo quy ước <b>Conventional Commits</b>. Cấu trúc chung:</p>
+                    <pre class="bg-gray-100 p-2 rounded"><code>&lt;type&gt;[optional scope]: &lt;description&gt;
+
+[optional body]
+
+[optional footer(s)]</code></pre>
+                    <p><b>Type:</b></p>
+                    <ul class="list-disc list-inside">
+                        <li><code>feat</code>: Một tính năng mới.</li>
+                        <li><code>fix</code>: Sửa một bug.</li>
+                        <li><code>docs</code>: Chỉ thay đổi tài liệu.</li>
+                        <li><code>style</code>: Thay đổi không ảnh hưởng đến ý nghĩa code (dấu chấm phẩy, thụt lề).</li>
+                        <li><code>refactor</code>: Viết lại code mà không sửa bug hay thêm tính năng mới.</li>
+                        <li><code>perf</code>: Cải thiện hiệu năng.</li>
+                        <li><code>test</code>: Thêm hoặc sửa test.</li>
+                        <li><code>build</code>: Thay đổi hệ thống build hoặc dependencies.</li>
+                        <li><code>ci</code>: Thay đổi cấu hình CI.</li>
+                        <li><code>chore</code>: Các thay đổi không liên quan đến source code hay test.</li>
+                        <li><code>revert</code>: Hoàn tác một commit trước đó.</li>
+                    </ul>
+                    <p><b>Description:</b> Ngắn gọn, viết ở thì hiện tại, dạng mệnh lệnh (ví dụ: "Add login page").</p>
+                    <p><b>Body (tùy chọn):</b> Giải thích chi tiết hơn về "LÝ DO" thay đổi, không chỉ là "CÁI GÌ".</p>
+                    <p><b>Footer (tùy chọn):</b> Chứa thông tin về `BREAKING CHANGE` hoặc tham chiếu đến Issues (ví dụ: `Closes #123`).</p>
+
+                    <h4>Quy tắc tạo Pull Request chi tiết, rõ ràng</h4>
+                     <ul class="list-disc list-inside mt-2 space-y-2">
+                        <li><b>Tiêu đề rõ ràng:</b> Phản ánh nội dung chính của PR (ví dụ: `feat: User Profile Page`).</li>
+                        <li><b>Mô tả PR chi tiết:</b>
+                            <ul class="list-disc list-inside ml-6">
+                                <li><b>Mục đích của PR là gì? (What):</b> Mô tả ngắn gọn về những gì PR này thực hiện.</li>
+                                <li><b>Tại sao cần thay đổi này? (Why):</b> Giải thích lý do, bối cảnh, hoặc vấn đề mà PR này giải quyết. Liên kết đến issue, user story nếu có.</li>
+                                <li><b>Thay đổi được thực hiện như thế nào? (How):</b> Tóm tắt các thay đổi kỹ thuật chính, các quyết định thiết kế quan trọng.</li>
+                                <li><b>Cách kiểm thử? (How to test):</b> Cung cấp các bước cụ thể để reviewer có thể kiểm tra và xác minh tính năng/sửa lỗi.</li>
+                            </ul>
+                        </li>
+                        <li><b>Ảnh chụp màn hình/GIF (nếu có thay đổi UI):</b> Rất hữu ích để reviewer hình dung được thay đổi trực quan.</li>
+                        <li><b>Đánh dấu "Work In Progress" (WIP) hoặc Draft:</b> Nếu PR chưa sẵn sàng để merge nhưng bạn muốn nhận phản hồi sớm, hãy thêm `[WIP]` vào tiêu đề hoặc sử dụng tính năng "Draft Pull Request" của GitHub.</li>
+                        <li><b>Liên kết đến các Issue liên quan:</b> Sử dụng từ khóa như `closes #<issue_number>`, `fixes #<issue_number>`, `relates to #<issue_number>` để tự động liên kết hoặc đóng issue khi PR được merge.</li>
+                        <li><b>Chia nhỏ PR:</b> Nếu một tính năng quá lớn, hãy cân nhắc chia thành nhiều PR nhỏ hơn, dễ review hơn. Mỗi PR nên tập trung vào một mục tiêu cụ thể và logic.</li>
+                        <li><b>Tự review trước khi yêu cầu người khác review:</b> Kiểm tra lại code của mình, xóa debug code không cần thiết, đảm bảo code sạch sẽ và tuân thủ coding style của team.</li>
+                    </ul>
+                    <hr class="my-8">
+                    <p class="text-center text-gray-600">Chúc bạn làm việc hiệu quả với Git và GitHub! Nếu có bất kỳ câu hỏi nào, đừng ngần ngại hỏi Tech Lead hoặc các thành viên khác trong team.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.code-block').forEach(block => {
+                const code = block.getAttribute('data-code') || block.textContent;
+                const btn = document.createElement('button');
+                btn.classList.add('copy-btn');
+                btn.textContent = 'Copy';
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(code).then(() => {
+                        btn.textContent = 'Copied!';
+                        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+                    }, () => {
+                        btn.textContent = 'Error';
+                    });
+                });
+                block.appendChild(btn);
+            });
+
+            const sections = document.querySelectorAll('main section');
+            const navLinks = document.querySelectorAll('#nav-menu a');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-20% 0px -80% 0px", threshold: 0 });
+
+            sections.forEach(section => { observer.observe(section); });
+        });
+    </script>
+</body>
+</html>
